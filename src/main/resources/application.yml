@@ -1,0 +1,41 @@
+server:
+  port: 8091
+
+spring:
+  application:
+    name: payment-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/resume_ai_payment?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: ${RABBITMQ_PASSWORD}
+
+razorpay:
+  key:
+    id: ${RAZORPAY_KEY_ID}
+    secret: ${RAZORPAY_KEY_SECRET}
+  currency: INR
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    com.resumeai.payment: DEBUG
+    org.springframework.web: INFO
