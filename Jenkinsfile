@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        maven 'Maven 3' // Replace with your configured Maven installation
-        jdk 'JDK 17'    // Replace with your JDK version
+        maven 'Maven' // Replace with your configured Maven installation
+        jdk 'JDK25'    // Replace with your JDK version
     }
 
     stages {
