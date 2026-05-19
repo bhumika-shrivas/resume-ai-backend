@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -19,6 +20,11 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
     @Autowired
     private AuthService authService;
+
+    // Set FRONTEND_URL env var in your .env file to your Vercel URL
+    // Defaults to localhost for local dev
+    @Value("${FRONTEND_URL:http://localhost:4200}")
+    private String frontendUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -34,7 +40,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             JwtResponse jwtResponse = authService.oauth2Login(email, name, "GOOGLE");
             
-            String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:4200/auth/callback")
+            String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/auth/callback")
                     .queryParam("token", jwtResponse.getAccessToken())
                     .queryParam("refreshToken", jwtResponse.getRefreshToken())
                     .build().toUriString();
@@ -43,16 +49,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         } catch (Exception e) {
             System.err.println("OAuth2 Login Error: " + e.getMessage());
             e.printStackTrace();
-            
-            try {
-                java.io.PrintWriter pw = new java.io.PrintWriter("f:/Project/ResumeAI/resume-ai-backend/error.txt");
-                e.printStackTrace(pw);
-                pw.close();
-            } catch (Exception ex) {
-                // Ignore file write errors
-            }
 
-            String targetUrl = UriComponentsBuilder.fromUriString("http://localhost:4200/login")
+            String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/login")
                     .queryParam("error", "OAuth2 login failed")
                     .build().toUriString();
             getRedirectStrategy().sendRedirect(request, response, targetUrl);
