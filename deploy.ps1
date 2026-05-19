@@ -1,6 +1,6 @@
 $services = [ordered]@{
     "discovery-server"     = 8761
-    "api-gateway"          = 8095
+    "api-gateway"          = 9090
     "auth-service"         = 8081
     "resume-service"       = 8082
     "section-service"      = 8083
