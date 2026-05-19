@@ -25,7 +25,7 @@ import java.util.Arrays;
 public class AiServiceImpl implements AiService {
 
     private static final int FREE_AI_MONTHLY_QUOTA = 5;
-    private static final String GEMINI_MODEL = "gemini-2.5-flash";
+    private static final String GEMINI_MODEL = "gemini-1.5-flash";
 
     @Autowired
     private AuthClient authClient;
