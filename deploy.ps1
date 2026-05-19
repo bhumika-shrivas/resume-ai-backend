@@ -1,6 +1,6 @@
 $services = [ordered]@{
     "discovery-server"     = 8761
-    "api-gateway"          = 8080
+    "api-gateway"          = 8095
     "auth-service"         = 8081
     "resume-service"       = 8082
     "section-service"      = 8083
@@ -51,10 +51,11 @@ foreach ($service in $services.Keys) {
     if ($jarPath) {
         Write-Host "Starting $($jarPath.Name) in background..."
         $logPath = (Join-Path (Get-Location) "logs\$service.log")
+        $errLogPath = (Join-Path (Get-Location) "logs\$service-error.log")
         $startArgs = "-jar `"$($jarPath.FullName)`""
         
         # Start-Process detaches it so Jenkins doesn't kill it or hang
-        Start-Process -FilePath "java" -ArgumentList $startArgs -RedirectStandardOutput $logPath -RedirectStandardError $logPath -WindowStyle Hidden
+        Start-Process -FilePath "java" -ArgumentList $startArgs -RedirectStandardOutput $logPath -RedirectStandardError $errLogPath -WindowStyle Hidden
     } else {
         Write-Host "ERROR: No .jar file found for $service! Did the build fail?"
     }
