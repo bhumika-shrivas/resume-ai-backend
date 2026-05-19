@@ -13,8 +13,8 @@ $services = [ordered]@{
     "payment-service"      = 8091
 }
 
-# 1. Load Environment Variables from .env.example
-$envFile = ".env.example"
+# 1. Load Environment Variables from .env
+$envFile = ".env"
 if (Test-Path $envFile) {
     Write-Host "Loading environment variables from $envFile..."
     Get-Content $envFile | ForEach-Object {
@@ -23,7 +23,7 @@ if (Test-Path $envFile) {
         }
     }
 } else {
-    Write-Host "WARNING: .env.example not found. Make sure your environment variables are set globally!"
+    Write-Host "WARNING: .env not found. Make sure your environment variables are set globally!"
 }
 
 # 2. Create logs directory
