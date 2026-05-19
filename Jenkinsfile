@@ -27,7 +27,8 @@ pipeline {
                         'ai-service', 
                         'payment-service', 
                         'section-service', 
-                        'notification-service'
+                        'notification-service',
+                        'resumeai-web'
                     ]
                     
                     for (int i = 0; i < services.size(); ++i) {
