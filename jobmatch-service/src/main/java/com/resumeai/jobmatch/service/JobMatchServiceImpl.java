@@ -31,6 +31,9 @@ public class JobMatchServiceImpl implements JobMatchService {
     @Value("${linkedin.rapidapi.key:}")
     private String linkedinRapidApiKey;
 
+    @Value("${RAPIDAPI_NAUKRI_KEY:}")
+    private String naukriRapidApiKey;
+
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
@@ -200,7 +203,7 @@ public class JobMatchServiceImpl implements JobMatchService {
     //  filter/label them as Naukri-style. For production, subscribe to a
     //  real Naukri job listing API.
     // ─────────────────────────────────────────────────────────────────────────
-    @Override
+   
     public List<Map<String, Object>> fetchJobsFromNaukri(String query, String location) {
         // Try a different Naukri job search API if key is set
         if (naukriRapidApiKey != null && !naukriRapidApiKey.isBlank()) {
@@ -226,14 +229,15 @@ public class JobMatchServiceImpl implements JobMatchService {
 
                 if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
                     // Naukri API returns market intelligence — convert to job listings format
-                    return buildNaukriFromMarketData(response.getBody(), query, location);
+                    // buildNaukriFromMarketData(response.getBody(), query, location);
                 }
             } catch (Exception e) {
                 System.err.println("Naukri API error: " + e.getMessage());
             }
         }
 
-        return buildNaukriDemoData(query, location);
+        // return buildNaukriDemoData(query, location);
+        return Collections.emptyList();
     }
 
     // ── Parsers ───────────────────────────────────────────────────────────────
