@@ -16,12 +16,8 @@ $services = [ordered]@{
 # 1. Load Environment Variables from .env
 $envFile = ".env"
 if (Test-Path $envFile) {
-    Write-Host "Loading environment variables from $envFile..."
-    Get-Content $envFile | ForEach-Object {
-        if ($_ -match "^(.*)=(.*)$") {
-            [Environment]::SetEnvironmentVariable($matches[1], $matches[2], "Process")
-        }
-    }
+    Write-Host "Copying .env to env.properties for Spring Boot..."
+    Copy-Item $envFile "env.properties" -Force
 } else {
     Write-Host "WARNING: .env not found. Make sure your environment variables are set globally!"
 }
@@ -52,7 +48,7 @@ foreach ($service in $services.Keys) {
         Write-Host "Starting $($jarPath.Name) in background..."
         $logPath = (Join-Path (Get-Location) "logs\$service.log")
         $errLogPath = (Join-Path (Get-Location) "logs\$service-error.log")
-        $startArgs = "-jar `"$($jarPath.FullName)`""
+        $startArgs = "-jar `"$($jarPath.FullName)`" --spring.config.import=optional:file:./env.properties"
         
         # Start-Process detaches it so Jenkins doesn't kill it or hang
         Start-Process -FilePath "java" -ArgumentList $startArgs -RedirectStandardOutput $logPath -RedirectStandardError $errLogPath -WindowStyle Hidden
