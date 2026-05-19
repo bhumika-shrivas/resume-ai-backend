@@ -64,8 +64,12 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     @Override
-    public Optional<TemplateResponseDTO> getTemplateById(String id) {
-        return templateRepository.findById(id).map(this::mapToDTO);
+    public Optional<TemplateResponseDTO> getTemplateById(String idOrKey) {
+        Optional<ResumeTemplate> template = templateRepository.findById(idOrKey);
+        if (template.isEmpty()) {
+            template = templateRepository.findByTemplateKey(idOrKey);
+        }
+        return template.map(this::mapToDTO);
     }
 
     @Override
