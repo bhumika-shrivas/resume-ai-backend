@@ -42,11 +42,13 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Locally') {
             steps {
-                echo 'Build completed. The .jar files in target/ directories are ready for deployment.'
-                // Example: Deploy using Docker or run java -jar
-                // bat 'docker-compose up -d --build'
+                echo 'Build completed. Initiating local deployment...'
+                // JENKINS_NODE_COOKIE=dontKillMe tells Jenkins NOT to terminate background processes when the job finishes
+                withEnv(['JENKINS_NODE_COOKIE=dontKillMe']) {
+                    powershell './deploy.ps1'
+                }
             }
         }
     }
