@@ -40,7 +40,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
             JwtResponse jwtResponse = authService.oauth2Login(email, name, "GOOGLE");
             
-            String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/auth/callback")
+            String targetUrl = UriComponentsBuilder.fromUriString(frontendUrl + "/oauth-callback")
                     .queryParam("token", jwtResponse.getAccessToken())
                     .queryParam("refreshToken", jwtResponse.getRefreshToken())
                     .build().toUriString();

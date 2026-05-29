@@ -12,29 +12,9 @@ public class QuotaService {
     @Autowired
     private AuthClient authClient;
 
-    private static final int FREE_AI_LIMIT = 5;
-
-    public void checkAiQuota(String email) {
-        UserDto user = authClient.getUserByEmail(email);
-        if ("PREMIUM".equalsIgnoreCase(user.getSubscriptionPlan()) || "ADMIN".equalsIgnoreCase(user.getRole())) {
-            return;
-        }
-
-        UserUsageDto usage = authClient.getUsage(email);
-        if (usage.getAiCallsThisMonth() + usage.getAtsChecksThisMonth() >= FREE_AI_LIMIT) {
-            throw new RuntimeException("AI quota (5) exceeded for this month. Please upgrade to PREMIUM for unlimited access.");
-        }
-    }
-
-    public void checkAtsQuota(String email) {
-        UserDto user = authClient.getUserByEmail(email);
-        if ("PREMIUM".equalsIgnoreCase(user.getSubscriptionPlan()) || "ADMIN".equalsIgnoreCase(user.getRole())) {
-            return;
-        }
-
-        UserUsageDto usage = authClient.getUsage(email);
-        if (usage.getAiCallsThisMonth() + usage.getAtsChecksThisMonth() >= FREE_AI_LIMIT) {
-            throw new RuntimeException("AI quota (5) exceeded for this month. Please upgrade to PREMIUM for unlimited access.");
+    public void validatePremiumAccess(String plan, String role) {
+        if (!"PREMIUM".equalsIgnoreCase(plan) && !"ADMIN".equalsIgnoreCase(role)) {
+            throw new com.resumeai.ai.exception.PremiumFeatureException("This is a Premium feature. Please upgrade your plan to access this service.");
         }
     }
 

@@ -102,7 +102,8 @@ public class AuthResource {
                 user.getHeadline(),
                 user.getAbout(),
                 user.getProvider(),
-                user.isActive()
+                user.isActive(),
+                user.getCreatedAt()
         );
     }
 

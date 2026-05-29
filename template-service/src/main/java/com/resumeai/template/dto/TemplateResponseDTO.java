@@ -25,6 +25,7 @@ public class TemplateResponseDTO {
     private boolean isPremium;
     private boolean isActive;
     private Integer usageCount;
+    private Double trend;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

@@ -20,20 +20,25 @@ public class DataSeeder {
     @Bean
     public CommandLineRunner seedDatabase() {
         return args -> {
-            if (userRepository.count() == 0) {
-                System.out.println("Seeding Auth Database...");
 
-                // Create Admin
-                User admin = new User();
-                admin.setFullName("Platform Admin");
-                admin.setEmail("bhumikashrivas.work@gmail.com");
-                admin.setPasswordHash(passwordEncoder.encode("Admin@12345"));
-                admin.setRole("ADMIN");
+
+            System.out.println("Ensuring Admin User exists...");
+
+            // Create or Update Admin
+            User admin = userRepository.findByEmail("bhumikashrivas.work@gmail.com").orElse(new User());
+            admin.setFullName("Platform Admin");
+            admin.setEmail("bhumikashrivas.work@gmail.com");
+            admin.setPasswordHash(passwordEncoder.encode("Admin@12345"));
+            admin.setRole("ADMIN");
+            if (admin.getProvider() == null) {
                 admin.setProvider("LOCAL");
-                admin.setSubscriptionPlan("PREMIUM");
-                admin.setActive(true);
-                userRepository.save(admin);
+            }
+            admin.setSubscriptionPlan("PREMIUM");
+            admin.setActive(true);
+            userRepository.save(admin);
+            System.out.println("Admin ensured: bhumikashrivas.work@gmail.com / Admin@12345");
 
+            if (userRepository.findByEmail("john@example.com").isEmpty()) {
                 // Create Test User
                 User user = new User();
                 user.setFullName("John Doe");
@@ -44,10 +49,7 @@ public class DataSeeder {
                 user.setSubscriptionPlan("FREE");
                 user.setActive(true);
                 userRepository.save(user);
-
-                System.out.println("Auth Database Seeded!");
-                System.out.println("Admin: bhumikashrivas.work@gmail.com / Admin@12345");
-                System.out.println("User: john@example.com / password123");
+                System.out.println("Test User: john@example.com / password123");
             }
         };
     }

@@ -4,6 +4,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -17,6 +19,7 @@ public class UserDTO {
     private String about;
     private String provider;
     private boolean active;
+    private LocalDateTime createdAt;
 
     public UserDTO(Long id,
                    String fullName,
@@ -26,7 +29,8 @@ public class UserDTO {
                    String headline,
                    String about,
                    String provider,
-                   boolean active) {
+                   boolean active,
+                   LocalDateTime createdAt) {
         this.id = id;
         this.fullName = fullName;
         this.email = email;
@@ -36,5 +40,6 @@ public class UserDTO {
         this.about = about;
         this.provider = provider;
         this.active = active;
+        this.createdAt = createdAt;
     }
 }

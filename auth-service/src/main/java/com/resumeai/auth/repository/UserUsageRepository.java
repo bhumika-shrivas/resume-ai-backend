@@ -9,10 +9,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserUsageRepository extends JpaRepository<UserUsage, Long> {
-    
-    @Query("SELECT SUM(u.aiCallsThisMonth) FROM UserUsage u")
+    @Query("SELECT COALESCE(SUM(u.aiCallsThisMonth), 0L) FROM UserUsage u")
     Long getTotalAiCalls();
 
-    @Query("SELECT SUM(u.atsChecksThisMonth) FROM UserUsage u")
+    @Query("SELECT COALESCE(SUM(u.atsChecksThisMonth), 0L) FROM UserUsage u")
     Long getTotalAtsChecks();
 }

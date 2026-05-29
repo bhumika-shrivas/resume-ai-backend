@@ -1,6 +1,7 @@
 package com.resumeai.auth.controller;
 
 import com.resumeai.auth.dto.AdminStatsResponse;
+import com.resumeai.auth.dto.UserDTO;
 import com.resumeai.auth.entity.User;
 import com.resumeai.auth.repository.UserRepository;
 import com.resumeai.auth.repository.UserUsageRepository;
@@ -11,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/admin")
@@ -32,8 +34,26 @@ public class AdminResource {
     private EmailService emailService;
 
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userRepository.findAll());
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
+        List<UserDTO> users = userRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(users);
+    }
+    
+    private UserDTO convertToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setFullName(user.getFullName());
+        dto.setEmail(user.getEmail());
+        dto.setRole(user.getRole());
+        dto.setProvider(user.getProvider());
+        dto.setSubscriptionPlan(user.getSubscriptionPlan());
+        dto.setActive(user.isActive());
+        dto.setHeadline(user.getHeadline());
+        dto.setAbout(user.getAbout());
+        dto.setCreatedAt(user.getCreatedAt());
+        return dto;
     }
 
     @GetMapping("/stats")
@@ -146,5 +166,26 @@ public class AdminResource {
     @GetMapping("/audit-logs")
     public ResponseEntity<List<com.resumeai.auth.entity.AuditLog>> getAuditLogs() {
         return ResponseEntity.ok(auditLogRepository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "createdAt")));
+    }
+
+    @GetMapping("/platform-health")
+    public ResponseEntity<java.util.Map<String, Object>> getPlatformHealth() {
+        java.util.Map<String, Object> health = new java.util.HashMap<>();
+
+        long startTime = System.currentTimeMillis();
+        userRepository.count();
+        long dbLatency = System.currentTimeMillis() - startTime;
+        health.put("dbLatencyMs", dbLatency);
+
+        java.io.File root = new java.io.File("/");
+        long totalSpace = root.getTotalSpace();
+        long freeSpace = root.getUsableSpace();
+        double storageUsagePct = 0.0;
+        if (totalSpace > 0) {
+            storageUsagePct = ((double) (totalSpace - freeSpace) / totalSpace) * 100;
+        }
+        health.put("storageUsagePct", Math.round(storageUsagePct * 10.0) / 10.0);
+
+        return ResponseEntity.ok(health);
     }
 }

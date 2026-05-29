@@ -18,7 +18,25 @@ public class TemplateServiceImpl implements TemplateService {
     @Autowired
     private TemplateRepository templateRepository;
 
+    @Autowired
+    private com.resumeai.template.repository.TemplateUsageLogRepository usageLogRepository;
+
     private TemplateResponseDTO mapToDTO(ResumeTemplate entity) {
+        long thisMonth = 0;
+        long lastMonth = 0;
+        Double trend = 0.0;
+        try {
+            thisMonth = usageLogRepository.countUsageBetween(entity.getTemplateId(), LocalDateTime.now().minusDays(30), LocalDateTime.now());
+            lastMonth = usageLogRepository.countUsageBetween(entity.getTemplateId(), LocalDateTime.now().minusDays(60), LocalDateTime.now().minusDays(30));
+            if (lastMonth > 0) {
+                trend = ((double) (thisMonth - lastMonth) / lastMonth) * 100;
+            } else if (thisMonth > 0) {
+                trend = 100.0;
+            }
+        } catch (Exception e) {
+            // Ignore if table not yet created
+        }
+
         return TemplateResponseDTO.builder()
                 .templateId(entity.getTemplateId())
                 .name(entity.getName())
@@ -34,6 +52,7 @@ public class TemplateServiceImpl implements TemplateService {
                 .isPremium(entity.isPremium())
                 .isActive(entity.isActive())
                 .usageCount(entity.getUsageCount())
+                .trend(Math.round(trend * 10.0) / 10.0)
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();
@@ -138,5 +157,13 @@ public class TemplateServiceImpl implements TemplateService {
     @Override
     public void incrementUsage(String id) {
         templateRepository.incrementUsageCount(id);
+        try {
+            usageLogRepository.save(com.resumeai.template.entity.TemplateUsageLog.builder()
+                    .templateId(id)
+                    .usedAt(LocalDateTime.now())
+                    .build());
+        } catch (Exception e) {
+            // Log table might not exist yet
+        }
     }
 }

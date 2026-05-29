@@ -27,12 +27,15 @@ public interface AiRequestRepository extends JpaRepository<AiRequest, String> {
     @Query("SELECT COUNT(a) FROM AiRequest a WHERE a.userId = :userId AND a.requestType = :type AND a.createdAt > :startDate")
     int countByUserIdAndTypeAndDate(@Param("userId") String userId, @Param("type") String type, @Param("startDate") LocalDateTime startDate);
 
-    @Query("SELECT COALESCE(SUM(a.tokensUsed), 0) FROM AiRequest a WHERE a.userId = :userId")
-    int sumTokensUsedByUserId(@Param("userId") String userId);
+    @Query("SELECT COALESCE(SUM(a.tokensUsed), 0L) FROM AiRequest a WHERE a.userId = :userId")
+    Long sumTokensUsedByUserId(@Param("userId") String userId);
 
-    @Query("SELECT COALESCE(SUM(a.tokensUsed), 0) FROM AiRequest a")
-    long sumAllTokensUsed();
+    @Query("SELECT COALESCE(SUM(a.tokensUsed), 0L) FROM AiRequest a")
+    Long sumAllTokensUsed();
 
-    @Query("SELECT COALESCE(SUM(a.tokensUsed), 0) FROM AiRequest a WHERE a.model = :model")
-    long sumTokensUsedByModel(@Param("model") String model);
+    @Query("SELECT COALESCE(SUM(a.tokensUsed), 0L) FROM AiRequest a WHERE a.model = :model")
+    Long sumTokensUsedByModel(@Param("model") String model);
+
+    @Query(value = "SELECT COALESCE(AVG(TIMESTAMPDIFF(SECOND, created_at, completed_at)), 0) FROM ai_requests WHERE status = 'COMPLETED'", nativeQuery = true)
+    Double getAverageQueueTime();
 }

@@ -25,7 +25,7 @@ import java.util.Arrays;
 public class AiServiceImpl implements AiService {
 
     private static final int FREE_AI_MONTHLY_QUOTA = 5;
-    private static final String GEMINI_MODEL = "gemini-1.5-flash";
+    private static final String GEMINI_MODEL = "gemini-2.5-flash";
 
     @Autowired
     private AuthClient authClient;
@@ -63,7 +63,7 @@ public class AiServiceImpl implements AiService {
     private void checkPremiumOnly(String userId) {
         String plan = getSubscriptionPlan(userId);
         if (!"PREMIUM".equalsIgnoreCase(plan)) {
-            throw new RuntimeException("PREMIUM_REQUIRED: This is a premium-only feature.");
+            throw new com.resumeai.ai.exception.PremiumFeatureException("PREMIUM_REQUIRED: This is a premium-only feature.");
         }
     }
 
@@ -82,7 +82,7 @@ public class AiServiceImpl implements AiService {
                         aiRequestRepository.countByUserIdAndTypeAndDate(userId, "ATS", startOfMonth);
         
         if (totalUsed >= FREE_AI_MONTHLY_QUOTA) {
-            throw new RuntimeException("Monthly AI quota (5) exceeded. Upgrade to Premium for unlimited access.");
+            throw new com.resumeai.ai.exception.PremiumFeatureException("Monthly AI quota (5) exceeded. Upgrade to Premium for unlimited access.");
         }
     }
 
@@ -113,7 +113,11 @@ public class AiServiceImpl implements AiService {
         notif.put("title", title);
         notif.put("message", message);
         notif.put("type", "QUOTA_WARNING");
-        notificationClient.sendNotification(notif);
+        try {
+            notificationClient.sendNotification(notif);
+        } catch (Exception e) {
+            System.err.println("Failed to send quota notification: " + e.getMessage());
+        }
     }
 
     private AiRequest logRequest(String userId, Long resumeId, String type, String prompt, String model) {

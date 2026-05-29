@@ -18,4 +18,12 @@ public class GlobalExceptionHandler {
         response.put("message", ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
+
+    @ExceptionHandler(PremiumFeatureException.class)
+    public ResponseEntity<Map<String, String>> handlePremiumFeatureException(PremiumFeatureException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Premium Feature");
+        response.put("message", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
 }

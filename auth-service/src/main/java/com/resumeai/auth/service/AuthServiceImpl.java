@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 public class AuthServiceImpl implements AuthService {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthServiceImpl.class);
+    private static final String SUPER_ADMIN_EMAIL = "bhumikashrivas.work@gmail.com";
 
     @Autowired
     private UserRepository userRepository;
@@ -51,9 +52,15 @@ public class AuthServiceImpl implements AuthService {
         if (user.getPasswordHash() != null && !user.getPasswordHash().isEmpty()) {
             user.setPasswordHash(passwordEncoder.encode(user.getPasswordHash()));
         }
-        user.setRole("USER");
+        if (SUPER_ADMIN_EMAIL.equalsIgnoreCase(user.getEmail())) {
+            user.setRole("ADMIN");
+            user.setSubscriptionPlan("PREMIUM");
+        } else {
+            user.setRole("USER");
+            user.setSubscriptionPlan("FREE");
+        }
+        
         user.setProvider("LOCAL");
-        user.setSubscriptionPlan("FREE");
 
         User savedUser = userRepository.save(user);
         auditService.log(savedUser.getEmail(), "REGISTER", "User registered via LOCAL provider");
@@ -209,9 +216,15 @@ public class AuthServiceImpl implements AuthService {
             newUser.setFullName(name);
             // Assign a random, unguessable password for OAuth users to prevent DB NOT NULL constraint issues
             newUser.setPasswordHash(passwordEncoder.encode(java.util.UUID.randomUUID().toString()));
-            newUser.setRole("USER");
+            if (SUPER_ADMIN_EMAIL.equalsIgnoreCase(email)) {
+                newUser.setRole("ADMIN");
+                newUser.setSubscriptionPlan("PREMIUM");
+            } else {
+                newUser.setRole("USER");
+                newUser.setSubscriptionPlan("FREE");
+            }
+            
             newUser.setProvider(provider != null ? provider.toUpperCase() : "GOOGLE");
-            newUser.setSubscriptionPlan("FREE");
             newUser.setActive(true);
             return userRepository.save(newUser);
         });
